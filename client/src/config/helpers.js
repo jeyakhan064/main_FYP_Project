@@ -12,8 +12,12 @@ export const downloadCanvasToImage = () => {
 
 export const reader = (file) =>
   new Promise((resolve, reject) => {
-    const fileReader = new FileReader();
-    fileReader.onload = () => resolve(fileReader.result);
+    const fileReader = new FileReader(); // ✅ correct variable name
+    fileReader.onload = () => {
+      console.log("Uploaded decal data:", fileReader.result); // 👈 this will now print
+      resolve(fileReader.result);
+    };
+    fileReader.onerror = reject;
     fileReader.readAsDataURL(file);
   });
 

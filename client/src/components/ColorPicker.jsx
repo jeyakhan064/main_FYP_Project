@@ -7,13 +7,22 @@ import state from '../store';
 const ColorPicker = () => {
   const snap = useSnapshot(state);
 
+  // Handle base color change only (no decals)
+  const handleColorChange = (color) => {
+    state.color = color.hex;
+  };
+
   return (
-    <div className="absolute left-full ml-3">
-      <SketchPicker 
-        color={snap.color}
-        disableAlpha
-        onChange={(color) => state.color = color.hex}
-      />
+    <div className="flex flex-col items-center w-full justify-start overflow-hidden">
+      {/* Color Picker - Base Model Color Only */}
+      <div className="transform scale-90">
+        <SketchPicker
+          color={snap.color}
+          disableAlpha
+          onChange={handleColorChange}
+          width="240px"
+        />
+      </div>
     </div>
   )
 }

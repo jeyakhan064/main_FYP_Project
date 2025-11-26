@@ -1,7 +1,5 @@
-import React, { useRef } from 'react'
-import { easing } from 'maath'
-import { useFrame } from '@react-three/fiber'
-import { AccumulativeShadows, RandomizedLight } from '@react-three/drei';
+import React, { useRef } from "react";
+import { AccumulativeShadows, RandomizedLight } from "@react-three/drei";
 
 const Backdrop = () => {
   const shadows = useRef();
@@ -11,27 +9,35 @@ const Backdrop = () => {
       ref={shadows}
       temporal
       frames={60}
-      alphaTest={0.85}
-      scae={10}
-      rotation={[Math.PI / 2, 0, 0]}
-      position={[0, 0, -0.14]}
+      alphaTest={1}          // fully transparent plane
+      scale={12}
+      color="#ffffff"
+      opacity={0.2}          // lighter, almost invisible
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.6, 0]} // pushed lower so no gray background overlaps
+      blend={true}
     >
-      <RandomizedLight 
+      {/* key light */}
+      <RandomizedLight
         amount={4}
-        radius={9}
-        intensity={0.55}
-        ambient={0.25}
-        position={[5, 5, -10]}
+        radius={8}
+        intensity={0.6}
+        ambient={0.8}
+        position={[5, 5, 2]}
+        bias={0.001}
       />
-      <RandomizedLight 
+
+      {/* fill light */}
+      <RandomizedLight
         amount={4}
-        radius={5}
-        intensity={0.25}
-        ambient={0.55}
-        position={[-5, 5, -9]}
+        radius={8}
+        intensity={0.5}
+        ambient={0.8}
+        position={[-5, 5, -2]}
+        bias={0.001}
       />
     </AccumulativeShadows>
-  )
-}
+  );
+};
 
-export default Backdrop
+export default Backdrop;

@@ -20,12 +20,13 @@ html {
 }
 
 .home {
-    @apply w-fit xl:h-full flex xl:justify-between justify-start items-start flex-col xl:py-8 xl:px-36 sm:p-8 p-6 max-xl:gap-7 absolute z-10 bg-white text-black;
+  @apply w-fit xl:h-full flex xl:justify-between justify-start items-start flex-col xl:py-8 xl:px-36 sm:p-8 p-6 max-xl:gap-7 absolute z-10 bg-white text-black;
 
 }
 
 header {
-  height: 64px; /* or your header height */
+  height: 64px;
+  /* or your header height */
 }
 
 .home-content {
@@ -43,7 +44,9 @@ header {
 
 .editortabs-container {
   @apply glassmorphism w-16 border-[2px] rounded-lg flex flex-col justify-center items-center ml-1 py-4 gap-4;
+  background-color: rgba(25, 25, 25, 0.25);
 }
+
 
 .filtertabs-container {
   @apply absolute z-10 bottom-5 right-0 left-0 w-full flex justify-center items-center flex-wrap gap-4;
@@ -93,6 +96,6 @@ input[type="file"] {
   border-radius: 6px !important;
 }
 
-.sketch-picker > div:nth-child(3) {
+.sketch-picker>div:nth-child(3) {
   display: none !important;
 }

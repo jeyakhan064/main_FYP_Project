@@ -1,17 +1,20 @@
+import { useEffect } from "react";
 import { useSnapshot } from "valtio";
 import state from "../store";
 import Canvas from "../canvas";
 import Home from "../components/Home";
 import Customizer from "./Customizer";
-import Header from "../components/Header";
 
 const HomePage = () => {
   const snap = useSnapshot(state);
 
+  // Reset intro to true when visiting home page
+  useEffect(() => {
+    state.intro = true;
+  }, []);
+
   return (
     <main className="app transition-all ease-in relative">
-      <Header />
-
       {/* Show Home only when intro is true */}
       {snap.intro ? (
         <Home />

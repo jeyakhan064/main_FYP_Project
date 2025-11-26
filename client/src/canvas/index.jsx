@@ -1,36 +1,44 @@
 import { Canvas } from "@react-three/fiber";
-import { Environment, Center, OrbitControls } from "@react-three/drei";
+import { Center, OrbitControls } from "@react-three/drei";
+import * as THREE from "three";
 
-import Shirt from "./Shirt";
-import Backdrop from "./Backdrop";
+import ModelViewer from "./ModelViewer"; // ✅ universal viewer
 
 const CanvasModel = () => {
   return (
     <Canvas
-      shadows
-      camera={{ position: [0, 0, 2.5], fov: 25 }} // move camera back a bit
+      camera={{ position: [0, 0, 10], fov: 45 }}
       gl={{ preserveDrawingBuffer: true }}
       className="w-full max-w-full h-full transition-all ease-in"
     >
-      <ambientLight intensity={0.5} />
-      <Environment preset="city" />
-      {/* <CameraRig> */}
-      <Backdrop />
-      <Center>
-        <Shirt />
+      {/* ✨ Flat white background */}
+      <color attach="background" args={["#ffffff"]} />
+
+      {/* 🌤 Ambient + Hemisphere lighting for soft global light */}
+      <hemisphereLight intensity={1.2} skyColor="#ffffff" groundColor="#ffffff" />
+
+      {/* 💡 Key Lights - No shadows */}
+      <directionalLight position={[2, 2, 2]} intensity={1.2} color="#ffffff" />
+      <directionalLight position={[-2, 2, 2]} intensity={0.9} color="#ffffff" />
+      <directionalLight position={[0, 0, -2]} intensity={0.9} color="#ffffff" />
+
+      {/* 👕 Main 3D model (dynamic via selectedModel) with auto-scaling */}
+      <Center scale={1}>
+        <ModelViewer />
       </Center>
-      {/* 👇 This makes the model rotatable with mouse */}
+
+      {/* 🌀 Mouse controls - Rotation only (no zoom, no pan) */}
       <OrbitControls
-        enableZoom={true}
+        enableZoom={false}
         enablePan={false}
-        rotateSpeed={1}
-        // if you want 360 rotation uncomment this
-        minPolarAngle={0}
-        maxPolarAngle={Math.PI}
-        // minPolarAngle={Math.PI / 2}
-        // maxPolarAngle={Math.PI / 2}
+        rotateSpeed={0.8}
+        minPolarAngle={Math.PI / 4}
+        maxPolarAngle={(3 * Math.PI) / 4}
+        minAzimuthAngle={-Infinity}
+        maxAzimuthAngle={Infinity}
+        makeDefault
       />
-      {/* </CameraRig> */}
+
     </Canvas>
   );
 };
