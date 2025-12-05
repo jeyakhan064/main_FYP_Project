@@ -10,6 +10,7 @@ const CanvasModel = () => {
       camera={{ position: [0, 0, 10], fov: 45 }}
       gl={{ preserveDrawingBuffer: true }}
       className="w-full max-w-full h-full transition-all ease-in"
+      style={{ position: 'fixed', top: 0, left: 0, zIndex: 0 }}
     >
       {/* ✨ Flat white background */}
       <color attach="background" args={["#ffffff"]} />

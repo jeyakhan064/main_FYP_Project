@@ -10,7 +10,6 @@ const state = proxy({
   color: "#EFBD48",
 
   // 🧩 Texture toggles
-  isLogoTexture: true,
   isFullTexture: false,
   isBackTexture: false,
   isLeftSleeveTexture: false,
@@ -21,7 +20,6 @@ const state = proxy({
   isTagTexture: false,
 
   // 🖼️ Decal images
-  logoDecal: "/threejs.png",
   fullDecal: "/threejs.png",
   backDecal: "/threejs.png",
   leftSleeveDecal: "/threejs.png",
@@ -39,11 +37,6 @@ const state = proxy({
 // 🧰 Helper: Apply a decal (sets texture + enables toggle)
 export const applyDecal = (type, url) => {
   switch (type) {
-    case "logo":
-      state.logoDecal = url;
-      state.isLogoTexture = true;
-      break;
-
     case "full":
       state.fullDecal = url;
       state.isFullTexture = true;
@@ -83,10 +76,6 @@ export const applyDecal = (type, url) => {
 // 🧩 Helper: Toggle decal visibility
 export const toggleDecal = (type) => {
   switch (type) {
-    case "logo":
-      state.isLogoTexture = !state.isLogoTexture;
-      break;
-
     case "full":
       state.isFullTexture = !state.isFullTexture;
       break;
@@ -126,8 +115,7 @@ export const setSelectedModel = (path) => {
     localStorage.setItem('selectedModel', path);
   }
 
-  // (optional) Reset decals when switching models
-  state.isLogoTexture = false;
+  // Reset all decal textures when switching models
   state.isFullTexture = false;
   state.isBackTexture = false;
   state.isLeftSleeveTexture = false;
@@ -137,7 +125,7 @@ export const setSelectedModel = (path) => {
   state.isHoodTexture = false;
   state.isTagTexture = false;
 
-  state.logoDecal = "";
+  // Reset decal images
   state.fullDecal = "";
   state.backDecal = "";
   state.leftSleeveDecal = "";

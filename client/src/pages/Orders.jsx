@@ -166,7 +166,7 @@ const Orders = () => {
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Total</p>
                       <p className="font-bold text-xl" style={{ color: '#EFBD48' }}>
-                        Rs. {order.totalPrice.toLocaleString('en-PK')}
+                        Rs. {(order.totalPrice || 0).toLocaleString('en-PK')}
                       </p>
                     </div>
                     <div>
@@ -184,7 +184,7 @@ const Orders = () => {
                   <div className="p-6">
                     <h3 className="font-bold text-gray-900 mb-4">Order Items</h3>
                     <div className="space-y-4">
-                      {order.orderItems.map((item, index) => (
+                      {(order.orderItems || []).map((item, index) => (
                         <div
                           key={index}
                           className="flex gap-4 items-center p-4 bg-gray-50 rounded-lg"

@@ -29,7 +29,6 @@ const Customizer = () => {
 
   // ðŸª„ Which filter tabs (shirt parts) are active
   const [activeFilterTab, setActiveFilterTab] = useState({
-    logoShirt: true,
     stylishShirt: false,
     backShirt: false,
     leftSleeveShirt: false,
@@ -62,20 +61,49 @@ const Customizer = () => {
   };
 
   // ðŸ§  Handle AI image generation
-  const handleSubmit = async (type) => {
-    if (!prompt) return alert("Please enter a prompt");
+  const handleSubmit = async (type, enhancedPrompt = null) => {
+    const promptToUse = enhancedPrompt || prompt;
+    if (!promptToUse) return alert("Please enter a prompt");
 
     try {
       setGeneratingImg(true);
+      console.log('🎨 Sending prompt to AI:', promptToUse);
+
       const response = await fetch("http://localhost:8080/api/v1/dalle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt: promptToUse }),
       });
+
+      console.log('📡 Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate image');
+      }
+
       const data = await response.json();
-      handleDecals(type, `data:image/png;base64,${data.photo}`);
+      console.log('✅ Image received from AI');
+      console.log('📦 Data received:', { hasPhoto: !!data.photo, photoLength: data.photo?.length });
+
+      if (!data.photo) {
+        throw new Error('No image data received from server');
+      }
+
+      // Detect image type from base64 header or default to jpeg
+      const imageType = data.photo.startsWith('/9j/') ? 'jpeg' : 'png';
+      const imageData = `data:image/${imageType};base64,${data.photo}`;
+
+      console.log('🎨 Applying image to decal type:', type);
+      console.log('📸 Image data URL length:', imageData.length);
+
+      handleDecals(type, imageData);
+      console.log('✅ Image applied to model');
+
+      alert('✨ Image generated successfully!');
     } catch (error) {
-      alert("Error generating image:", error);
+      console.error('❌ AI Generation Error:', error);
+      alert(`Error generating image: ${error.message}`);
     } finally {
       setGeneratingImg(false);
       setActiveEditorTab("");
@@ -95,7 +123,6 @@ const Customizer = () => {
   // ðŸ§© Toggle shirt areas
   const handleActiveFilterTab = (tabName) => {
     const toggleMap = {
-      logoShirt: "isLogoTexture",
       stylishShirt: "isFullTexture",
       backShirt: "isBackTexture",
       leftSleeveShirt: "isLeftSleeveTexture",
@@ -143,7 +170,7 @@ const Customizer = () => {
       id: `custom-${Date.now()}`, // Unique ID for customized items
       name: "Customized Apparel",
       model: snap.selectedModel || "/models/shirt_baked.glb",
-      image: canvasSnapshot || snap.logoDecal || "/threejs.png", // Use canvas snapshot
+      image: canvasSnapshot || "/threejs.png", // Use canvas snapshot
       price: 8999, // PKR
       color: snap.color,
       isCustomized: true,
@@ -152,7 +179,6 @@ const Customizer = () => {
         color: snap.color,
         selectedModel: snap.selectedModel,
         decals: {
-          logo: snap.isLogoTexture ? snap.logoDecal : null,
           full: snap.isFullTexture ? snap.fullDecal : null,
           back: snap.isBackTexture ? snap.backDecal : null,
           leftSleeve: snap.isLeftSleeveTexture ? snap.leftSleeveDecal : null,
@@ -175,33 +201,8 @@ const Customizer = () => {
 
   return (
     <>
-      {/* Top Right Action Buttons */}
-      <motion.div
-        className="absolute z-20 top-20 right-6 flex gap-3"
-        {...fadeAnimation}
-      >
-        <motion.button
-          onClick={() => downloadCanvasToImage()}
-          className="px-5 py-2.5 rounded-md font-bold text-sm text-gray-900 shadow-md hover:shadow-lg transition-all"
-          style={{ backgroundColor: "#EFBD48" }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Download
-        </motion.button>
-        <motion.button
-          onClick={handleAddToCart}
-          className="px-6 py-2.5 rounded-md font-bold text-sm text-gray-900 shadow-md hover:shadow-lg transition-all"
-          style={{ backgroundColor: addedToCart ? "#10B981" : "#EFBD48" }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {addedToCart ? "✓ Added to Cart" : "Add to Cart"}
-        </motion.button>
-      </motion.div>
-
-      {/* Left Side - Two Equal Grids with Golden Borders */}
-      <div className="absolute left-6 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-4 max-h-[calc(100vh-120px)] overflow-y-auto">
+      {/* Left Side - Color & File Picker with Download/Cart Buttons */}
+      <div className="absolute left-6 top-[55%] -translate-y-1/2 z-50 flex flex-col gap-4">
         {/* Color Picker Grid - Compact */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -222,7 +223,7 @@ const Customizer = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[270px]"
+          className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[270px] overflow-visible"
           style={{ border: '2px solid #EFBD48' }}
         >
           <h3 className="text-gray-800 font-bold text-sm mb-2">
@@ -230,70 +231,91 @@ const Customizer = () => {
           </h3>
           <FilePicker file={file} setFile={setFile} readFile={readFile} />
         </motion.div>
+
+        {/* Action Buttons - Download & Add to Cart */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex gap-2"
+        >
+          <motion.button
+            onClick={() => downloadCanvasToImage()}
+            className="flex-1 px-4 py-2.5 rounded-md font-bold text-sm text-gray-900 shadow-md hover:shadow-lg transition-all"
+            style={{ backgroundColor: "#EFBD48" }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Download
+          </motion.button>
+          <motion.button
+            onClick={handleAddToCart}
+            className="flex-1 px-4 py-2.5 rounded-md font-bold text-sm text-gray-900 shadow-md hover:shadow-lg transition-all"
+            style={{ backgroundColor: addedToCart ? "#10B981" : "#EFBD48" }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {addedToCart ? "✓ Added" : "Add to Cart"}
+          </motion.button>
+        </motion.div>
       </div>
 
-      {/* Floating AI Assistant Icon (Above Cart) */}
+      {/* Right Side - AI Design Generator (Fixed Position) */}
       <motion.div
-        className="fixed bottom-24 right-6 z-20"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.3, type: "spring" }}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+        className="absolute right-6 top-[20%] -translate-y-1/2 z-50 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[350px] overflow-visible"
+        style={{ border: '2px solid #EFBD48' }}
       >
-        <motion.button
-          onClick={() => setActiveEditorTab(activeEditorTab === "aipicker" ? "" : "aipicker")}
-          className="w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:shadow-xl transition-all overflow-hidden"
-          style={{ backgroundColor: "#EFBD48" }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          title="AI Design Assistant"
-        >
-          <img
-            src="/assets/ai.png"
-            alt="AI Assistant"
-            className="w-8 h-8 object-contain"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.parentElement.textContent = 'AI';
-            }}
-          />
-        </motion.button>
-
-        {/* AI Popup Interface */}
-        <AnimatePresence>
-          {activeEditorTab === "aipicker" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              transition={{ type: "spring", damping: 20 }}
-              className="absolute bottom-20 right-0 bg-white/98 backdrop-blur-sm rounded-2xl shadow-2xl p-5 w-[420px] max-h-[600px] overflow-y-auto"
-              style={{ border: '2px solid #EFBD48' }}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200">
-                <div className="flex items-center gap-2">
-                  <img src="/assets/ai.png" alt="AI" className="w-6 h-6" />
-                  <h4 className="font-bold text-base text-gray-800">AI Design Assistant</h4>
-                </div>
-                <button
-                  onClick={() => setActiveEditorTab("")}
-                  className="text-gray-400 hover:text-gray-800 text-2xl leading-none transition-colors"
-                >
-                  ×
-                </button>
-              </div>
-
-              {/* AI Content */}
-              <AIPicker
-                prompt={prompt}
-                setPrompt={setPrompt}
-                generatingImg={generatingImg}
-                handleSubmit={handleSubmit}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <h3 className="text-gray-800 font-bold text-sm mb-2">
+          AI Design Generator
+        </h3>
+        <AIPicker
+          prompt={prompt}
+          setPrompt={setPrompt}
+          generatingImg={generatingImg}
+          handleSubmit={handleSubmit}
+        />
       </motion.div>
+
+      {/* Filter Tabs - Toggle Decal Visibility - Bottom Center */}
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-50">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3"
+          style={{ border: '2px solid #EFBD48' }}
+        >
+          <h3 className="text-gray-800 font-bold text-sm mb-2 text-center">
+            Toggle Decals
+          </h3>
+          <div className="flex gap-2 justify-center">
+            {FilterTabs.filter(tab =>
+              ['stylishShirt', 'backShirt', 'leftSleeveShirt', 'rightSleeveShirt'].includes(tab.name)
+            ).map((tab) => (
+              <button
+                key={tab.name}
+                onClick={() => handleActiveFilterTab(tab.name)}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all border-2 ${activeFilterTab[tab.name]
+                  ? 'bg-gray-200 border-gray-400'
+                  : 'bg-white border-gray-300 hover:border-yellow-400'
+                  }`}
+                style={{ width: '70px' }}
+              >
+                <img src={tab.icon} alt={tab.name} className="w-8 h-8 mb-1" />
+                <span className="text-[10px] font-medium text-gray-700">
+                  {tab.name === 'stylishShirt' ? 'Full' :
+                    tab.name === 'backShirt' ? 'Back' :
+                      tab.name === 'leftSleeveShirt' ? 'L-Sleeve' :
+                        'R-Sleeve'}
+                </span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </>
   );
 };

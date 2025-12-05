@@ -1,7 +1,14 @@
 import React from "react";
+import { useSnapshot } from "valtio";
+import state from "../store";
 import CustomButton from "./CustomButton";
 
 const FilePicker = ({ file, setFile, readFile }) => {
+  const snap = useSnapshot(state);
+
+  // Check if current model is pants
+  const isPantsModel = snap.selectedModel && snap.selectedModel.includes('the_pants');
+
   return (
     <div className="flex flex-col items-center w-full">
       {/* Upload Section */}
@@ -27,38 +34,53 @@ const FilePicker = ({ file, setFile, readFile }) => {
         </p>
       </div>
 
-      {/* Buttons Section - 5 Decal Areas */}
+      {/* Buttons Section - Conditional based on model type */}
       <div className="flex flex-wrap justify-center gap-2 w-full">
-        <CustomButton
-          type="outline"
-          title="Logo"
-          handleClick={() => readFile("logo")}
-          customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
-        />
-        <CustomButton
-          type="filled"
-          title="Full"
-          handleClick={() => readFile("full")}
-          customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
-        />
-        <CustomButton
-          type="outline"
-          title="Back"
-          handleClick={() => readFile("back")}
-          customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
-        />
-        <CustomButton
-          type="outline"
-          title="L-Sleeve"
-          handleClick={() => readFile("leftSleeve")}
-          customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
-        />
-        <CustomButton
-          type="outline"
-          title="R-Sleeve"
-          handleClick={() => readFile("rightSleeve")}
-          customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
-        />
+        {isPantsModel ? (
+          // Pants model - Only Belt (full) and Full Coverage (collar) buttons
+          <>
+            <CustomButton
+              type="filled"
+              title="Belt"
+              handleClick={() => readFile("full")}
+              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+            />
+            <CustomButton
+              type="outline"
+              title="Full"
+              handleClick={() => readFile("collar")}
+              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+            />
+          </>
+        ) : (
+          // Other models - Standard decal buttons (NO LOGO)
+          <>
+            <CustomButton
+              type="filled"
+              title="Full"
+              handleClick={() => readFile("full")}
+              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+            />
+            <CustomButton
+              type="outline"
+              title="Back"
+              handleClick={() => readFile("back")}
+              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+            />
+            <CustomButton
+              type="outline"
+              title="L-Sleeve"
+              handleClick={() => readFile("leftSleeve")}
+              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+            />
+            <CustomButton
+              type="outline"
+              title="R-Sleeve"
+              handleClick={() => readFile("rightSleeve")}
+              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+            />
+          </>
+        )}
       </div>
     </div>
   );

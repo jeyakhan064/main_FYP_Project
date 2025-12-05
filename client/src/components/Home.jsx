@@ -260,7 +260,7 @@ const Home = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Start Designing
+                Let's Explore
               </motion.button>
             </motion.div>
           </motion.div>

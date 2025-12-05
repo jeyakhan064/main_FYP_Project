@@ -2,6 +2,7 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
 
@@ -36,6 +37,22 @@ router.post(
     const { name, email, password } = req.body;
 
     try {
+      // Check if JWT_SECRET is configured
+      if (!process.env.JWT_SECRET) {
+        console.error('❌ JWT_SECRET is not configured in .env file');
+        return res.status(500).json({
+          message: 'Server configuration error: JWT_SECRET not configured'
+        });
+      }
+
+      // Check MongoDB connection
+      if (!mongoose.connection.readyState) {
+        console.error('❌ MongoDB is not connected');
+        return res.status(500).json({
+          message: 'Database connection error. Please try again later.'
+        });
+      }
+
       // Check if user already exists
       const userExists = await User.findOne({ email });
 
@@ -62,8 +79,12 @@ router.post(
         res.status(400).json({ message: 'Invalid user data' });
       }
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      console.error('❌ Signup Error:', error.message);
+      console.error('Full error:', error);
+      res.status(500).json({
+        message: 'Server error during signup',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 );
@@ -87,6 +108,22 @@ router.post(
     const { email, password } = req.body;
 
     try {
+      // Check if JWT_SECRET is configured
+      if (!process.env.JWT_SECRET) {
+        console.error('❌ JWT_SECRET is not configured in .env file');
+        return res.status(500).json({
+          message: 'Server configuration error: JWT_SECRET not configured'
+        });
+      }
+
+      // Check MongoDB connection
+      if (!mongoose.connection.readyState) {
+        console.error('❌ MongoDB is not connected');
+        return res.status(500).json({
+          message: 'Database connection error. Please try again later.'
+        });
+      }
+
       // Check for user (include password for comparison)
       const user = await User.findOne({ email }).select('+password');
 
@@ -102,8 +139,12 @@ router.post(
         res.status(401).json({ message: 'Invalid email or password' });
       }
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      console.error('❌ Login Error:', error.message);
+      console.error('Full error:', error);
+      res.status(500).json({
+        message: 'Server error during login',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 );
@@ -137,6 +178,14 @@ router.post(
     const { email } = req.body;
 
     try {
+      // Check MongoDB connection
+      if (!mongoose.connection.readyState) {
+        console.error('❌ MongoDB is not connected');
+        return res.status(500).json({
+          message: 'Database connection error. Please try again later.'
+        });
+      }
+
       const user = await User.findOne({ email });
 
       if (!user) {
@@ -168,8 +217,12 @@ router.post(
         resetUrl, // Remove this in production
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      console.error('❌ Forgot Password Error:', error.message);
+      console.error('Full error:', error);
+      res.status(500).json({
+        message: 'Server error during password reset',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 );

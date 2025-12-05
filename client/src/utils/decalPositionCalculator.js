@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { sleeveScaleMultipliers } from '../config/sleeveScales';
+import state from '../store';
 
 /**
  * Automatically calculates optimal decal positions for any model
@@ -31,58 +33,66 @@ export const calculateDecalPositions = (mesh) => {
 
   // Calculate positions based on model geometry
   const positions = {
-    // Logo - Front chest area (upper front, slightly right of center)
+    // Logo - Front LEFT chest area (polo-style logo)
     logo: [
-      center.x + width * 0.1,  // Slightly right
-      center.y + height * 0.2,  // Upper chest
-      bbox.max.z + depth * 0.05 // Offset to prevent z-fighting
+      center.x - width * 0.15,     // LEFT side (polo-style position)
+      center.y + height * 0.25,    // Upper chest
+      bbox.max.z + depth * 0.10    // Front surface with offset
     ],
 
     // Front - Center front (torso area)
     front: [
       center.x,
-      center.y,
-      bbox.max.z + depth * 0.05
+      center.y + height * 0.05,    // Slightly above center
+      bbox.max.z + depth * 0.10
     ],
 
     // Back - Center back
     back: [
       center.x,
-      center.y,
-      bbox.min.z - depth * 0.05 // Behind the model
+      center.y + height * 0.05,    // Slightly above center
+      bbox.min.z - depth * 0.10    // Behind the model with offset
     ],
 
-    // Left Sleeve - Upper left arm area
+    // Left Sleeve - Covers ENTIRE left arm from shoulder to wrist
     leftSleeve: [
-      bbox.max.x + depth * 0.05,  // Left side with offset
-      center.y + height * 0.15,    // Upper arm height
-      center.z                      // Middle depth
+      bbox.min.x - width * 0.05,   // LEFT arm at shoulder edge
+      center.y,                    // Mid-arm height (vertical center)
+      center.z                     // Center depth (side view)
     ],
 
-    // Right Sleeve - Upper right arm area
+    // Right Sleeve - Covers ENTIRE right arm from shoulder to wrist
     rightSleeve: [
-      bbox.min.x - depth * 0.05,  // Right side with offset
-      center.y + height * 0.15,    // Upper arm height
-      center.z                      // Middle depth
+      bbox.max.x + width * 0.05,   // RIGHT arm at shoulder edge
+      center.y,                    // Mid-arm height (vertical center)
+      center.z                     // Center depth (side view)
     ],
 
     // Full - Covers entire front
     full: [
       center.x,
       center.y,
-      bbox.max.z + depth * 0.03
+      bbox.max.z + depth * 0.08
     ],
   };
 
   // Calculate optimal scale based on model size
   const avgDimension = (width + height) / 2;
+  const armLength = Math.abs(bbox.max.x - bbox.min.x) * 0.5; // Half the width for one arm
+
+  // Get custom sleeve scale multiplier for this specific model
+  const modelPath = state.selectedModel;
+  const sleeveMultiplier = sleeveScaleMultipliers[modelPath] || sleeveScaleMultipliers.default;
+
+  console.log(`🎯 Using sleeve multiplier ${sleeveMultiplier} for ${modelPath}`);
+
   const scale = {
-    logo: avgDimension * 0.35,      // Increased from 0.15 to 0.35 for visibility
-    front: avgDimension * 0.25,     // Medium front design
-    back: avgDimension * 0.25,      // Medium back design
-    leftSleeve: avgDimension * 0.28, // Increased from 0.12 to 0.28 for visibility
-    rightSleeve: avgDimension * 0.28, // Increased from 0.12 to 0.28 for visibility
-    full: avgDimension * 0.8,       // Large full texture
+    logo: avgDimension * 0.20,      // Small chest logo (square)
+    front: avgDimension * 0.35,     // Medium front design
+    back: avgDimension * 0.40,      // Larger back design
+    leftSleeve: height * sleeveMultiplier,   // Custom scale per model
+    rightSleeve: height * sleeveMultiplier,  // Custom scale per model
+    full: width * 1.3,              // Maximum full coverage - uses width to cover arms fully
   };
 
   console.log('✅ Calculated decal positions:', positions);

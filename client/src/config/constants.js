@@ -39,10 +39,6 @@ export const EditorTabs = [
 // These let the user select which part of the shirt they’re editing.
 export const FilterTabs = [
   {
-    name: "logoShirt",
-    icon: logoShirt,
-  },
-  {
     name: "stylishShirt",
     icon: stylishShirt,
   },
@@ -81,10 +77,6 @@ export const FilterTabs = [
 // -------------------------
 // These define how each design image (decal) is applied on the shirt.
 export const DecalTypes = {
-  logo: {
-    stateProperty: "logoDecal",
-    filterTab: "logoShirt",
-  },
   full: {
     stateProperty: "fullDecal",
     filterTab: "stylishShirt",

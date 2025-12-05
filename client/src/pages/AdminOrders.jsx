@@ -38,7 +38,14 @@ const AdminOrders = () => {
         throw new Error(data.message || 'Failed to fetch orders');
       }
 
-      setOrders(data);
+      // Handle both array response and object with orders property
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else if (data.orders && Array.isArray(data.orders)) {
+        setOrders(data.orders);
+      } else {
+        setOrders([]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -126,7 +133,7 @@ const AdminOrders = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 {status}
-                {status !== 'All' && ` (${orders.filter(o => o.status === status).length})`}
+                {status !== 'All' && ` (${Array.isArray(orders) ? orders.filter(o => o.status === status).length : 0})`}
               </motion.button>
             ))}
           </div>

@@ -7,10 +7,16 @@ import * as THREE from "three";
 
 import state from "../store";
 import { decalPositions } from "../config/decalpositions";
+import { calculateDecalPositions } from "../utils/decalPositionCalculator";
 
 const ModelViewer = () => {
   const snap = useSnapshot(state);
   const { nodes, materials } = useGLTF(snap.selectedModel);
+
+  // Debug: Log model structure
+  console.log('🔍 Model loaded:', snap.selectedModel);
+  console.log('📦 Nodes:', Object.keys(nodes));
+  console.log('🎨 Materials:', Object.keys(materials));
 
   // Helper: Check if value is a color (hex) or image URL
   const isColor = (value) => value && typeof value === 'string' && value.startsWith('#');
@@ -21,6 +27,7 @@ const ModelViewer = () => {
   const backIsColor = isColor(snap.backDecal);
   const leftSleeveIsColor = isColor(snap.leftSleeveDecal);
   const rightSleeveIsColor = isColor(snap.rightSleeveDecal);
+  const collarIsColor = isColor(snap.collarDecal);
 
   // Load image textures ONLY (useTexture can't handle colors)
   // Pass empty string as fallback to avoid errors
@@ -29,6 +36,7 @@ const ModelViewer = () => {
   const backTextureImg = useTexture(backIsColor ? '/threejs.png' : (snap.backDecal || '/threejs.png'));
   const leftSleeveTextureImg = useTexture(leftSleeveIsColor ? '/threejs.png' : (snap.leftSleeveDecal || '/threejs.png'));
   const rightSleeveTextureImg = useTexture(rightSleeveIsColor ? '/threejs.png' : (snap.rightSleeveDecal || '/threejs.png'));
+  const collarTextureImg = useTexture(collarIsColor ? '/threejs.png' : (snap.collarDecal || '/threejs.png'));
 
   // Create color textures from hex colors
   const logoTexture = useMemo(() => {
@@ -96,8 +104,27 @@ const ModelViewer = () => {
     return rightSleeveTextureImg;
   }, [rightSleeveIsColor, snap.rightSleeveDecal, rightSleeveTextureImg]);
 
+  const collarTexture = useMemo(() => {
+    if (collarIsColor) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = snap.collarDecal;
+      ctx.fillRect(0, 0, 512, 512);
+      return new THREE.CanvasTexture(canvas);
+    }
+    return collarTextureImg;
+  }, [collarIsColor, snap.collarDecal, collarTextureImg]);
+
   // Get the first mesh node (assuming single-mesh models)
   const meshNode = Object.values(nodes).find((node) => node.isMesh);
+
+  if (meshNode) {
+    console.log('✅ Mesh found:', Object.keys(nodes).find(key => nodes[key] === meshNode));
+  } else {
+    console.error('❌ No mesh found in nodes!');
+  }
 
   // Calculate decal positions and model scale automatically
   const [decalConfig, setDecalConfig] = useState(null);
@@ -105,31 +132,51 @@ const ModelViewer = () => {
 
   useEffect(() => {
     if (meshNode) {
-      // Use manual positions from config file
-      const manualConfig = decalPositions[snap.selectedModel] || decalPositions.default;
+      // HYBRID MODE: Check if manual positions exist, otherwise use automatic calculation
+      const manualConfig = decalPositions[snap.selectedModel];
+      let config;
 
-      console.log('✅ Using MANUAL positions for:', snap.selectedModel);
-      console.log('📍 Manual positions:', manualConfig);
+      if (manualConfig) {
+        // Use MANUAL positions from config file
+        console.log('✅ Using MANUAL positions for:', snap.selectedModel);
+        console.log('📍 Manual config:', manualConfig);
 
-      const config = {
-        positions: {
-          logo: manualConfig.logo || [0, 0.04, 0.15],
-          front: manualConfig.logo || [0, 0, 0.15],
-          back: manualConfig.back || [0, 0.04, -0.15],
-          leftSleeve: manualConfig.leftSleeve || [-0.18, 0.04, 0.08],
-          rightSleeve: manualConfig.rightSleeve || [0.18, 0.04, 0.08],
-          full: manualConfig.full || [0, 0.04, 0.15],
-        },
-        scale: {
-          logo: 0.25,
-          front: 0.25,
-          back: 0.25,
-          leftSleeve: 0.25,
-          rightSleeve: 0.25,
-          full: 0.8,
+        // Check if config has nested structure (new format) or flat structure (old format)
+        if (manualConfig.positions && manualConfig.scale) {
+          // New format with nested positions and scale objects
+          config = manualConfig;
+        } else {
+          // Old format - create nested structure
+          config = {
+            positions: {
+              logo: manualConfig.logo,
+              front: manualConfig.logo,
+              back: manualConfig.back,
+              leftSleeve: manualConfig.leftSleeve,
+              rightSleeve: manualConfig.rightSleeve,
+              collar: manualConfig.collar,
+              tag: manualConfig.tag,
+              full: manualConfig.full,
+            },
+            scale: {
+              logo: 0.15,           // Small chest logo (ORIGINAL working size)
+              front: 0.25,          // Medium for front center designs
+              back: 0.30,           // Larger for back center designs
+              leftSleeve: 0.45,     // Large to cover entire sleeve (ORIGINAL working size)
+              rightSleeve: 0.45,    // Large to cover entire sleeve (ORIGINAL working size)
+              collar: 0.35,         // Collar/hood area
+              tag: 0.1,             // Small tag
+              full: 1.0,            // Maximum for full coverage
+            }
+          };
         }
-      };
+      } else {
+        // Use AUTOMATIC calculation based on geometry
+        console.log('🤖 Using AUTOMATIC calculation for:', snap.selectedModel);
+        config = calculateDecalPositions(meshNode);
+      }
 
+      console.log('⚙️ Final decal config:', config);
       setDecalConfig(config);
 
       // Auto-scale model to fit viewport consistently
@@ -138,8 +185,8 @@ const ModelViewer = () => {
       bbox.getSize(size);
       const maxDimension = Math.max(size.x, size.y, size.z);
 
-      // Target size: normalize all models to similar visual size (increased slightly)
-      const targetSize = 3.2;
+      // Target size: normalize all models to similar visual size (increased for better visibility)
+      const targetSize = 5.5;  // Increased from 3.2 to 4.0 (25% larger)
       const scale = targetSize / maxDimension;
       setModelScale(scale);
     }
@@ -169,9 +216,47 @@ const ModelViewer = () => {
 
   const { positions, scale } = decalConfig;
 
-  // Fix pants positioning - pants are lower-body garments and need vertical adjustment
-  const isPantsModel = snap.selectedModel.includes('the_pants');
-  const positionAdjustment = isPantsModel ? [0, 1.5, 0] : [0, 0, 0];
+  // Position adjustments for specific models that need vertical alignment
+  const getPositionAdjustment = () => {
+    const modelPath = snap.selectedModel;
+
+    // Pants need upward adjustment
+    if (modelPath.includes('the_pants')) {
+      return [0, 3.5, 0];
+    }
+
+    // T-shirt, Women's Top, and Varsity Jacket need slight upward adjustment
+    if (modelPath.includes('shirt_baked') ||
+      modelPath.includes('womens_top') ||
+      modelPath.includes('varsity_jacket')) {
+      return [0, 0.15, 0];
+    }
+
+    // All other models stay at original position
+    return [0, 0, 0];
+  };
+
+  const positionAdjustment = getPositionAdjustment();
+
+  console.log('🎯 Decal states:', {
+    isLogoTexture: snap.isLogoTexture,
+    isFullTexture: snap.isFullTexture,
+    isBackTexture: snap.isBackTexture,
+    isLeftSleeveTexture: snap.isLeftSleeveTexture,
+    isRightSleeveTexture: snap.isRightSleeveTexture,
+    logoDecal: snap.logoDecal ? 'SET' : 'EMPTY',
+    fullDecal: snap.fullDecal ? 'SET' : 'EMPTY',
+    backDecal: snap.backDecal ? 'SET' : 'EMPTY',
+  });
+  console.log('📍 Using positions:', positions);
+  console.log('📏 Using scale:', scale);
+  console.log('🔍 Textures loaded:', {
+    logoTexture: logoTexture ? 'LOADED' : 'NULL',
+    fullTexture: fullTexture ? 'LOADED' : 'NULL',
+    backTexture: backTexture ? 'LOADED' : 'NULL',
+    leftSleeveTexture: leftSleeveTexture ? 'LOADED' : 'NULL',
+    rightSleeveTexture: rightSleeveTexture ? 'LOADED' : 'NULL',
+  });
 
   return (
     <group key={stateString} scale={modelScale} position={positionAdjustment}>
@@ -183,26 +268,22 @@ const ModelViewer = () => {
       >
         {/* Logo Decal - Front chest */}
         {snap.isLogoTexture && (
-          <Decal
-            position={positions.logo}
-            rotation={[0, 0, 0]}
-            scale={scale.logo}
-            map={logoTexture}
-            depthTest={true}
-            depthWrite={true}
-          />
-        )}
-
-        {/* Front Decal - Center front (alternative to logo) */}
-        {snap.isFullTexture && !snap.isLogoTexture && (
-          <Decal
-            position={positions.front}
-            rotation={[0, 0, 0]}
-            scale={scale.front}
-            map={fullTexture}
-            depthTest={true}
-            depthWrite={true}
-          />
+          <>
+            {console.log('🏷️ RENDERING LOGO:', {
+              position: positions.logo,
+              scale: scale.logo,
+              texture: logoTexture ? 'EXISTS' : 'NULL',
+              logoDecal: snap.logoDecal
+            })}
+            <Decal
+              position={positions.logo}
+              rotation={[0, 0, 0]}
+              scale={[scale.logo, scale.logo, scale.logo]}
+              map={logoTexture}
+              depthTest={true}
+              depthWrite={true}
+            />
+          </>
         )}
 
         {/* Back Decal - Center back */}
@@ -222,7 +303,7 @@ const ModelViewer = () => {
           <Decal
             position={positions.leftSleeve}
             rotation={[0, Math.PI / 2, 0]}
-            scale={scale.leftSleeve}
+            scale={[scale.leftSleeve * 0.4, scale.leftSleeve, scale.leftSleeve]}
             map={leftSleeveTexture}
             depthTest={true}
             depthWrite={true}
@@ -234,20 +315,32 @@ const ModelViewer = () => {
           <Decal
             position={positions.rightSleeve}
             rotation={[0, -Math.PI / 2, 0]}
-            scale={scale.rightSleeve}
+            scale={[scale.rightSleeve * 0.4, scale.rightSleeve, scale.rightSleeve]}
             map={rightSleeveTexture}
             depthTest={true}
             depthWrite={true}
           />
         )}
 
-        {/* Full Texture - Covers entire garment */}
+        {/* Full Texture - Covers entire garment (Belt area for pants) */}
         {snap.isFullTexture && (
           <Decal
             position={positions.full}
             rotation={[0, 0, 0]}
             scale={scale.full}
             map={fullTexture}
+            depthTest={true}
+            depthWrite={true}
+          />
+        )}
+
+        {/* Collar Decal - Full coverage for pants */}
+        {snap.isCollarTexture && (
+          <Decal
+            position={positions.collar}
+            rotation={[0, 0, 0]}
+            scale={scale.collar}
+            map={collarTexture}
             depthTest={true}
             depthWrite={true}
           />

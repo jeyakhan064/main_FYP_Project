@@ -1,177 +1,62 @@
 export const decalPositions = {
     default: {
-        logo: [0, 0.04, 0.15],        // Front chest center
-        back: [0, 0.04, -0.15],        // Back center
-        leftSleeve: [-0.18, 0.04, 0.08], // Left sleeve front area
-        rightSleeve: [0.18, 0.04, 0.08], // Right sleeve front area
-        collar: [0, 0.15, 0.12],       // Collar/neck area
-        tag: [0, -0.15, -0.13],        // Back tag inside
-        full: [0, 0.04, 0.15],         // Full front coverage
+        logo: [-0.08, 0.12, 0.15],      // Front left top corner (polo style)
+        back: [0, 0.04, -0.15],          // Back center
+        leftSleeve: [-0.18, 0.04, 0],    // Left sleeve - covers entire sleeve
+        rightSleeve: [0.18, 0.04, 0],    // Right sleeve - covers entire sleeve
+        collar: [0, 0.15, 0.12],         // Collar/neck area
+        tag: [0, -0.15, -0.13],          // Back tag inside
+        full: [0, 0.04, 0.15],           // Full front coverage
     },
 
-    // T-Shirt
-    "/models/shirt_baked.glb": {
-        logo: [0, 0.04, 0.15],
-        back: [0, 0.04, -0.15],
-        leftSleeve: [-0.18, 0.04, 0.08],
-        rightSleeve: [0.18, 0.04, 0.08],
-        collar: [0, 0.15, 0.12],
-        tag: [0, -0.15, -0.13],
-        full: [0, 0.04, 0.15],
-    },
+    // ALL models below will use AUTOMATIC CALCULATION
+    // The system analyzes each model's 3D geometry and calculates optimal decal positions
 
-    // Women's Top
-    "/models/womens_top.glb": {
-        meshName: "FO_001_Oversized-sweater_FABRIC_1_FRONT_3915_010_0",
-        logo: [0, 0.32, 0.12],
-        back: [0, 0.32, -0.12],
-        leftSleeve: [-0.32, 0.1, 0],
-        rightSleeve: [0.32, 0.1, 0],
-        collar: [0, 0.45, 0.05],
-        tag: [0, -0.15, 0.1],
-        full: [0, 0.32, 0.12],
-    },
+    // T-Shirt - Use automatic calculation
+    // "/models/shirt_baked.glb" will use automatic calculation
 
-    // Hoodie
-    "/models/hoodie.glb": {
-        logo: [0, 0.05, 0.15],
-        back: [0, 0.05, -0.15],
-        leftSleeve: [-0.2, 0.05, 0.08],
-        rightSleeve: [0.2, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.13],
-        full: [0, 0.05, 0.15],
-    },
+    // Women's Top - Use automatic calculation
+    // "/models/womens_top.glb" will use automatic calculation
 
-    // AGC Jacket
-    "/models/agc_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
+    // Hoodie - Use automatic calculation
+    // "/models/hoodie.glb" will use automatic calculation
 
-    // Cloth Jacket
-    "/models/cloth_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
+    // AGC Jacket - Use automatic calculation
+    // "/models/agc_jacket.glb" will use automatic calculation
 
-    // Hooded Jacket
-    "/models/hooded_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
+    // Cloth Jacket - Use automatic calculation
+    // "/models/cloth_jacket.glb" will use automatic calculation
 
-    // Indiana Jones Coat
-    "/models/indiana_jones_wested_leather_coat.glb": {
-        logo: [0, 0.05, 0.18],
-        back: [0, 0.05, -0.18],
-        leftSleeve: [-0.24, 0.05, 0.08],
-        rightSleeve: [0.24, 0.05, 0.08],
-        collar: [0, 0.2, 0.14],
-        tag: [0, -0.2, -0.16],
-        full: [0, 0.05, 0.18],
-    },
+    // Hooded Jacket - Use automatic calculation
+    // "/models/hooded_jacket.glb" will use automatic calculation
 
-    // Regular Jacket
-    "/models/jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
+    // Indiana Jones Coat - Use automatic calculation
+    // "/models/indiana_jones_wested_leather_coat.glb" will use automatic calculation
 
-    // Jean Jacket
-    "/models/jean_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
+    // Jean Jacket - Use automatic calculation
+    // "/models/jean_jacket.glb" will use automatic calculation
 
-    // Leather Jacket
-    "/models/leather_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
+    // Varsity Jacket - Use automatic calculation
+    // "/models/varsity_jacket.glb" will use automatic calculation
 
-    // Tactical Jacket
-    "/models/low_poly_tactical_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
-
-    // Puffer Jacket
-    "/models/puffer_jacket(0.3).glb": {
-        logo: [0, 0.06, 0.17],
-        back: [0, 0.06, -0.17],
-        leftSleeve: [-0.24, 0.06, 0.09],
-        rightSleeve: [0.24, 0.06, 0.09],
-        collar: [0, 0.2, 0.13],
-        tag: [0, -0.16, -0.15],
-        full: [0, 0.06, 0.17],
-    },
-
-    // Varsity Jacket
-    "/models/varsity_jacket.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
-
-    // Jacket with Skirt
-    "/models/a_jacket_with_a_skirt.glb": {
-        logo: [0, 0.05, 0.16],
-        back: [0, 0.05, -0.16],
-        leftSleeve: [-0.22, 0.05, 0.08],
-        rightSleeve: [0.22, 0.05, 0.08],
-        collar: [0, 0.18, 0.12],
-        tag: [0, -0.15, -0.14],
-        full: [0, 0.05, 0.16],
-    },
-
-    // The Pants
+    // The Pants - Special configuration for pants
+    // For pants: 'full' = belt area (horizontal strip), 'collar' = entire model coverage (360°)
     "/models/the_pants.glb": {
-        logo: [0, 0.1, 0.12],
-        back: [0, 0.1, -0.12],
-        leftSleeve: [-0.15, 0, 0.1],
-        rightSleeve: [0.15, 0, 0.1],
-        collar: [0, 0.2, 0.1],
-        tag: [0, -0.1, -0.1],
-        full: [0, 0.1, 0.12],
+        positions: {
+            back: [0, 0.0, -0.12],           // Back waist center
+            leftSleeve: [-0.15, -0.2, 0.08], // Left leg side
+            rightSleeve: [0.15, -0.2, 0.08], // Right leg side
+            collar: [0, -0.1, 0.12],         // Full model coverage - centered on entire pants, moved forward
+            tag: [0, -0.1, -0.1],            // Back tag inside
+            full: [0, 0.05, 0.12],           // Belt area (horizontal waistband strip) - PERFECT POSITION
+        },
+        scale: {
+            back: 0.25,                       // Medium back waist design
+            leftSleeve: 0.4,                  // Leg side design
+            rightSleeve: 0.4,                 // Leg side design
+            collar: 2.6,                      // Full model coverage - increased for better coverage
+            tag: 0.1,                         // Small tag
+            full: [0.6, 0.15, 0.6],          // Belt area - wide horizontally, thin vertically (belt shape)
+        }
     },
 };

@@ -12,7 +12,7 @@ router.route('/').get((req, res) => {
 })
 
 // @route   POST /api/v1/dalle
-// @desc    Generate image using DALL-E API
+// @desc    Generate image using Pollinations.AI (FREE - No API Key!)
 // @access  Public
 router.route('/').post(async (req, res) => {
   try {
@@ -22,54 +22,57 @@ router.route('/').post(async (req, res) => {
       return res.status(400).json({ message: 'Prompt is required' });
     }
 
-    // Check if OpenAI API key is configured
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({
-        message: 'OpenAI API key is not configured. Please add OPENAI_API_KEY to your .env file'
-      });
+    console.log('🎨 Generating image with Pollinations.AI for prompt:', prompt);
+
+    // Pollinations.AI - FREE AI image generation (no API key required!)
+    // Using simpler URL format that's more reliable
+    const encodedPrompt = encodeURIComponent(prompt);
+
+    // Try the simpler Pollinations endpoint
+    const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&enhance=true`;
+
+    console.log('🔗 Image URL:', imageUrl);
+
+    // Fetch the image with retry logic
+    let response;
+    let retries = 3;
+
+    while (retries > 0) {
+      try {
+        response = await axios.get(imageUrl, {
+          responseType: 'arraybuffer',
+          timeout: 60000, // 60 second timeout
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        break; // Success, exit retry loop
+      } catch (err) {
+        retries--;
+        if (retries === 0) throw err;
+        console.log(`⚠️ Retry attempt ${3 - retries}/3...`);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+      }
     }
 
-    console.log('🎨 Generating image for prompt:', prompt);
-
-    // Call OpenAI DALL-E API using axios (works with latest OpenAI API)
-    const response = await axios.post(
-      'https://api.openai.com/v1/images/generations',
-      {
-        model: 'dall-e-3', // Use 'dall-e-2' for faster/cheaper results
-        prompt: prompt,
-        n: 1,
-        size: '1024x1024', // DALL-E 3: '1024x1024', '1792x1024', '1024x1792' | DALL-E 2: '256x256', '512x512', '1024x1024'
-        response_format: 'b64_json', // Return base64 encoded image
-        quality: 'standard', // 'standard' or 'hd' (DALL-E 3 only)
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        timeout: 60000, // 60 second timeout
-      }
-    );
-
-    const image = response.data.data[0].b64_json;
-    console.log('✅ Image generated successfully');
+    // Convert to base64
+    const image = Buffer.from(response.data).toString('base64');
+    console.log('✅ Image generated successfully with Pollinations.AI');
 
     res.status(200).json({ photo: image });
 
   } catch (error) {
-    console.error('❌ DALL-E API Error:', error.response?.data || error.message);
+    console.error('❌ Image Generation Error:');
+    console.error('Message:', error.message);
 
-    if (error.response?.status === 401) {
-      res.status(401).json({ message: 'Invalid OpenAI API key' });
-    } else if (error.response?.status === 429) {
-      res.status(429).json({ message: 'Rate limit exceeded. Please try again later.' });
-    } else if (error.code === 'ECONNABORTED') {
+    if (error.code === 'ECONNABORTED') {
       res.status(408).json({ message: 'Request timeout. Please try again.' });
+    } else if (error.response?.status === 429) {
+      res.status(429).json({ message: 'Rate limit exceeded. Please try again in a moment.' });
     } else {
       res.status(500).json({
         message: 'Failed to generate image',
-        error: error.response?.data?.error?.message || error.message
+        error: error.message
       });
     }
   }
