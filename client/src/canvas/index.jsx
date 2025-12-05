@@ -11,6 +11,10 @@ const CanvasModel = () => {
       gl={{ preserveDrawingBuffer: true }}
       className="w-full max-w-full h-full transition-all ease-in"
       style={{ position: 'fixed', top: 0, left: 0, zIndex: 0 }}
+      onCreated={({ gl }) => {
+        // Allow canvas to receive pointer events for OrbitControls
+        gl.domElement.style.pointerEvents = 'auto';
+      }}
     >
       {/* ✨ Flat white background */}
       <color attach="background" args={["#ffffff"]} />

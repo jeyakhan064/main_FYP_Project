@@ -201,6 +201,23 @@ const Customizer = () => {
 
   return (
     <>
+      {/* Pointer-event blocking zones - positioned exactly over UI panels */}
+      {/* Left panel blocker */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-[320px] z-40"
+        style={{ pointerEvents: 'auto' }}
+      />
+      {/* Right panel blocker */}
+      <div
+        className="absolute right-0 top-0 bottom-0 w-[400px] z-40"
+        style={{ pointerEvents: 'auto' }}
+      />
+      {/* Bottom panel blocker */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[120px] z-40"
+        style={{ pointerEvents: 'auto' }}
+      />
+
       {/* Left Side - Color & File Picker with Download/Cart Buttons */}
       <div className="absolute left-6 top-[55%] -translate-y-1/2 z-50 flex flex-col gap-4">
         {/* Color Picker Grid - Compact */}
