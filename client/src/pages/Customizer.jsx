@@ -201,31 +201,28 @@ const Customizer = () => {
 
   return (
     <>
-      {/* Pointer-event blocking zones - positioned exactly over UI panels */}
-      {/* Left panel blocker */}
-      <div
-        className="absolute left-0 top-0 bottom-0 w-[320px] z-40"
-        style={{ pointerEvents: 'auto' }}
-      />
-      {/* Right panel blocker */}
-      <div
-        className="absolute right-0 top-0 bottom-0 w-[400px] z-40"
-        style={{ pointerEvents: 'auto' }}
-      />
-      {/* Bottom panel blocker */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-[120px] z-40"
-        style={{ pointerEvents: 'auto' }}
-      />
-
-      {/* Left Side - Color & File Picker with Download/Cart Buttons */}
-      <div className="absolute left-6 top-[55%] -translate-y-1/2 z-50 flex flex-col gap-4">
-        {/* Color Picker Grid - Compact */}
+      {/* Left Side - File Picker & Color Picker */}
+      <div className="absolute left-6 top-[49%] -translate-y-1/2 z-[9999] flex flex-col gap-4" style={{ pointerEvents: 'auto' }}>
+        {/* File Upload Grid - Compact - ON TOP */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
+          className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[320px] overflow-visible"
+          style={{ border: '2px solid #EFBD48', pointerEvents: 'auto' }}
+        >
+          <h3 className="text-gray-800 font-bold text-sm mb-2">
+            Upload Design
+          </h3>
+          <FilePicker file={file} setFile={setFile} readFile={readFile} />
+        </motion.div>
+
+        {/* Color Picker Grid - Compact - BELOW FILE PICKER */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
           className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[270px] overflow-hidden"
-          style={{ border: '2px solid #EFBD48' }}
+          style={{ border: '2px solid #EFBD48', pointerEvents: 'auto' }}
         >
           <h3 className="text-gray-800 font-bold text-sm mb-1">
             Color Picker
@@ -235,31 +232,22 @@ const Customizer = () => {
           </div>
         </motion.div>
 
-        {/* File Upload Grid - Compact */}
+      </div>
+
+      {/* Right Side - Download & Add to Cart + AI Design Generator */}
+      <div className="absolute right-6 top-[12%] z-[9999] flex flex-col gap-4" style={{ pointerEvents: 'auto' }}>
+        {/* Action Buttons - Download & Add to Cart - MOVED TO TOP RIGHT */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[270px] overflow-visible"
-          style={{ border: '2px solid #EFBD48' }}
-        >
-          <h3 className="text-gray-800 font-bold text-sm mb-2">
-            Upload Design
-          </h3>
-          <FilePicker file={file} setFile={setFile} readFile={readFile} />
-        </motion.div>
-
-        {/* Action Buttons - Download & Add to Cart */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
           className="flex gap-2"
+          style={{ pointerEvents: 'auto' }}
         >
           <motion.button
             onClick={() => downloadCanvasToImage()}
             className="flex-1 px-4 py-2.5 rounded-md font-bold text-sm text-gray-900 shadow-md hover:shadow-lg transition-all"
-            style={{ backgroundColor: "#EFBD48" }}
+            style={{ backgroundColor: "#EFBD48", pointerEvents: 'auto' }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -268,42 +256,42 @@ const Customizer = () => {
           <motion.button
             onClick={handleAddToCart}
             className="flex-1 px-4 py-2.5 rounded-md font-bold text-sm text-gray-900 shadow-md hover:shadow-lg transition-all"
-            style={{ backgroundColor: addedToCart ? "#10B981" : "#EFBD48" }}
+            style={{ backgroundColor: addedToCart ? "#10B981" : "#EFBD48", pointerEvents: 'auto' }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             {addedToCart ? "✓ Added" : "Add to Cart"}
           </motion.button>
         </motion.div>
+
+        {/* AI Design Generator - BELOW BUTTONS */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[350px] overflow-visible"
+          style={{ border: '2px solid #EFBD48', pointerEvents: 'auto' }}
+        >
+          <h3 className="text-gray-800 font-bold text-sm mb-2">
+            AI Design Generator
+          </h3>
+          <AIPicker
+            prompt={prompt}
+            setPrompt={setPrompt}
+            generatingImg={generatingImg}
+            handleSubmit={handleSubmit}
+          />
+        </motion.div>
       </div>
 
-      {/* Right Side - AI Design Generator (Fixed Position) */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2 }}
-        className="absolute right-6 top-[20%] -translate-y-1/2 z-50 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 w-[350px] overflow-visible"
-        style={{ border: '2px solid #EFBD48' }}
-      >
-        <h3 className="text-gray-800 font-bold text-sm mb-2">
-          AI Design Generator
-        </h3>
-        <AIPicker
-          prompt={prompt}
-          setPrompt={setPrompt}
-          generatingImg={generatingImg}
-          handleSubmit={handleSubmit}
-        />
-      </motion.div>
-
       {/* Filter Tabs - Toggle Decal Visibility - Bottom Center */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-50">
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-[9999]" style={{ pointerEvents: 'auto' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3"
-          style={{ border: '2px solid #EFBD48' }}
+          style={{ border: '2px solid #EFBD48', pointerEvents: 'auto' }}
         >
           <h3 className="text-gray-800 font-bold text-sm mb-2 text-center">
             Toggle Decals

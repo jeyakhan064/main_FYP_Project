@@ -25,11 +25,11 @@ router.route('/').post(async (req, res) => {
     console.log('🎨 Generating image with Pollinations.AI for prompt:', prompt);
 
     // Pollinations.AI - FREE AI image generation (no API key required!)
-    // Using simpler URL format that's more reliable
+    // Using image.pollinations.ai subdomain for better reliability
     const encodedPrompt = encodeURIComponent(prompt);
 
-    // Try the simpler Pollinations endpoint
-    const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&enhance=true`;
+    // Use image.pollinations.ai subdomain
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&enhance=true`;
 
     console.log('🔗 Image URL:', imageUrl);
 

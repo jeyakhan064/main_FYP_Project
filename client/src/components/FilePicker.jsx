@@ -54,30 +54,31 @@ const FilePicker = ({ file, setFile, readFile }) => {
           </>
         ) : (
           // Other models - Standard decal buttons (NO LOGO)
+          // All buttons in one line: Full, Back, L-Sleeve, R-Sleeve
           <>
             <CustomButton
               type="filled"
               title="Full"
               handleClick={() => readFile("full")}
-              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+              customStyles="text-xs px-2 py-1.5 whitespace-nowrap"
             />
             <CustomButton
               type="outline"
               title="Back"
               handleClick={() => readFile("back")}
-              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+              customStyles="text-xs px-2 py-1.5 whitespace-nowrap"
             />
             <CustomButton
               type="outline"
               title="L-Sleeve"
               handleClick={() => readFile("leftSleeve")}
-              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+              customStyles="text-xs px-2 py-1.5 whitespace-nowrap"
             />
             <CustomButton
               type="outline"
               title="R-Sleeve"
               handleClick={() => readFile("rightSleeve")}
-              customStyles="text-xs px-3 py-1.5 whitespace-nowrap"
+              customStyles="text-xs px-2 py-1.5 whitespace-nowrap"
             />
           </>
         )}

@@ -13,9 +13,7 @@ const CustomizerPage = () => {
   return (
     <main className="app transition-all ease-in relative">
       <Header />
-      <div style={{ pointerEvents: 'none' }}>
-        <Canvas />
-      </div>
+      <Canvas />
       <Customizer />
     </main>
   );

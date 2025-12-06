@@ -48,15 +48,15 @@ export const decalPositions = {
             rightSleeve: [0.15, -0.2, 0.08], // Right leg side
             collar: [0, -0.1, 0.12],         // Full model coverage - centered on entire pants, moved forward
             tag: [0, -0.1, -0.1],            // Back tag inside
-            full: [0, 0.05, 0.12],           // Belt area (horizontal waistband strip) - PERFECT POSITION
+            full: [0, 0.1, 0.15],            // Belt area - positioned at waistband top
         },
         scale: {
             back: 0.25,                       // Medium back waist design
             leftSleeve: 0.4,                  // Leg side design
             rightSleeve: 0.4,                 // Leg side design
-            collar: 2.6,                      // Full model coverage - increased for better coverage
+            collar: 4.2,                      // Full model coverage - increased by 20% (3.5 * 1.2 = 4.2)
             tag: 0.1,                         // Small tag
-            full: [0.6, 0.15, 0.6],          // Belt area - wide horizontally, thin vertically (belt shape)
+            full: [2.0, 1.0, 1.0],           // Belt area - wide horizontal strip for visibility
         }
     },
 };
